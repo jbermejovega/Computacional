@@ -1,0 +1,68 @@
+SCI_KI_FISICA_COMPUTACIONAL_NOTEBOOK_REVIEW_V1:
+  marker: FISICA_COMPUTACIONAL_DEEP_NOTEBOOK_REVIEW_V1
+  resource: MCP_SCIKI_N8N_FISICA_COMPUTACIONAL_REVIEW_RESOURCE_V1
+  status: active
+  repository: jbermejovega/Computacional
+  knowledge_mode: notebook_by_notebook_deep_review
+  invariants:
+    no_notebook_code_execution: true
+    read_only_static_review: true
+    replay_safe: true
+    generated_witness_required: true
+  nodes:
+    - id: REVISION_PROFUNDA_NOTEBOOKS_V1
+      kind: human_review_report
+      path: docs/revision_fisica_computacional/REVISION_PROFUNDA_NOTEBOOKS_V1.md
+    - id: NOTEBOOK_DEEP_REVIEW_SCRIPT
+      kind: static_reviewer
+      path: scripts/revision_fisica_computacional/notebook_deep_review.py
+    - id: FISICA_COMPUTACIONAL_NOTEBOOK_REVIEW_WORKFLOW
+      kind: github_actions_invariant_workflow
+      path: .github/workflows/fisica-computacional-notebook-review.yml
+    - id: N8N_FISICA_COMPUTACIONAL_DEEP_REVIEW
+      kind: n8n_export
+      path: n8n/fisica-computacional-deep-review.workflow.json
+    - id: OBLIGATORIO_1_VERLET_SOLAR_SYSTEM
+      kind: notebook
+      path: obligatorios/obligatorio1/sistemas_solar_notebook.ipynb
+    - id: OBLIGATORIO_2_ISING_EMPTY_SHADOW
+      kind: blocked_notebook
+      path: obligatorios/obligatorio2/Informe _ising.ipynb
+    - id: OBLIGATORIO_2_ISING_CANONICAL_REPORT
+      kind: notebook
+      path: obligatorios/obligatorio2/Obligatorio2_informe.ipynb
+    - id: OBLIGATORIO_4_THREE_BODY_ROOT_COPY
+      kind: duplicate_notebook_candidate
+      path: Obligatorio4.ipynb
+    - id: OBLIGATORIO_4_THREE_BODY_CANONICAL_CANDIDATE
+      kind: notebook
+      path: obligatorios/obligatorio4/Obligatorio4.ipynb
+    - id: VOLUNTARIO_1_GALAXY_FORMATION
+      kind: notebook
+      path: Voluntarios/Voluntario1/notebook.ipynb
+  edges:
+    - from: FISICA_COMPUTACIONAL_NOTEBOOK_REVIEW_WORKFLOW
+      relation: validates
+      to: MCP_SCIKI_N8N_FISICA_COMPUTACIONAL_REVIEW_RESOURCE_V1
+    - from: NOTEBOOK_DEEP_REVIEW_SCRIPT
+      relation: emits_witness_for
+      to: REVISION_PROFUNDA_NOTEBOOKS_V1
+    - from: OBLIGATORIO_2_ISING_EMPTY_SHADOW
+      relation: blocks_review_until_deleted_or_restored
+      to: OBLIGATORIO_2_ISING_CANONICAL_REPORT
+    - from: OBLIGATORIO_4_THREE_BODY_ROOT_COPY
+      relation: duplicates_or_shadows
+      to: OBLIGATORIO_4_THREE_BODY_CANONICAL_CANDIDATE
+    - from: N8N_FISICA_COMPUTACIONAL_DEEP_REVIEW
+      relation: orchestrates_manual_review
+      to: REVISION_PROFUNDA_NOTEBOOKS_V1
+  review_states:
+    BLOCKED:
+      meaning: file cannot be reviewed as a valid notebook artifact
+      canonical_action: delete_restore_or_replace
+    NEEDS_REVISION:
+      meaning: notebook is parseable but has reproducibility or structure issues
+      canonical_action: revise_before_final_grading
+    READY_FOR_CONTENT_REVIEW:
+      meaning: static structure is clean enough for physics/content grading
+      canonical_action: continue_to_scientific_review
